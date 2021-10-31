@@ -1,21 +1,44 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using team_lunch.Models;
 
 namespace team_lunch.Controllers
 {
     public class LoginController : Controller
     {
-        // GET: /HelloWorld/
-        public ViewResult Index()
+        private readonly ILogger<LoginController> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISession _session;
+
+        public LoginController(IHttpContextAccessor httpContextAccessor, ILogger<LoginController> logger)
         {
-            return View();
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+            _session = _httpContextAccessor.HttpContext.Session;
         }
 
-        // 
-        // GET: /HelloWorld/Welcome/ 
-        public string Welcome(string name)
+        public ViewResult Index()
         {
+            return View(new LoginViewModel(""));
+        }
 
-            return "This is the Welcome action method..." + name;
+        public IActionResult Login(string email, string password)
+        {
+            if (email == "coder@coder.com")
+            {
+                if (password == "1234")
+                {
+                    _session.SetString("username", email);
+                    return RedirectToAction("welcome");
+                }
+            }
+            return View("index", new LoginViewModel("Your Login Failed, Please check your password!"));
+        }
+
+        public IActionResult Welcome()
+        {
+            return View();
         }
     }
 }
